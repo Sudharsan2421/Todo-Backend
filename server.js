@@ -6,7 +6,14 @@ const app = express();
 const PORT = 5000;
 
 // ✅ Middleware
-app.use(cors());
+const corsOptions = {
+  origin: 'https://todo-frontend-three-gamma.vercel.app',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
+
 app.use(express.json());
 
 // ✅ MongoDB connection
