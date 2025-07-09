@@ -9,23 +9,22 @@ const PORT = 5000;
 app.use(cors());
 app.use(express.json());
 
-// ✅ MongoDB connection (STANDARD URI)
+// ✅ MongoDB connection
 const MONGO_URI = 'mongodb+srv://sudhardeveloper2124:6T2BbVnDs0ze6ATn@construction.s0w45ig.mongodb.net/?retryWrites=true&w=majority&appName=construction';
 mongoose.connect(MONGO_URI)
   .then(() => console.log('✅ Connected to MongoDB'))
   .catch((err) => console.error('❌ MongoDB connection error:', err));
 
-// ✅ Todo Schema
+// ✅ Schema
 const todoSchema = new mongoose.Schema({
   text: String,
   status: String,
   startDate: String,
   endDate: String,
 });
-
 const Todo = mongoose.model('Todo', todoSchema);
 
-// ✅ REST APIs
+// ✅ Routes
 app.get('/todos', async (req, res) => {
   const todos = await Todo.find();
   res.json(todos);
@@ -51,5 +50,3 @@ app.delete('/todos/:id', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`🚀 Server running at ${PORT}`);
 });
-
-
