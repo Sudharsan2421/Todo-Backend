@@ -1,28 +1,49 @@
+// ✅ Put this in index.js
 const express = require('express');
-const mongoose = require('mongoose');
 const cors = require('cors');
+const mongoose = require('mongoose');
 
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
-// ✅ MongoDB connection string (replace with your real one)
-const MONGODB_URI = 'mongodb+srv://sudhardeveloper2124:6T2BbVnDs0ze6ATn@construction.s0w45ig.mongodb.net/?retryWrites=true&w=majority&appName=todo';
-
-// ✅ Middleware
 app.use(cors());
 app.use(express.json());
 
-// ✅ Connect to MongoDB
-mongoose.connect(MONGODB_URI)
-  .then(() => console.log('✅ Connected to MongoDB'))
-  .catch((err) => console.error('❌ MongoDB connection failed:', err));
+const MONGO_URI = '...';
+mongoose.connect(MONGO_URI)
+  .then(() => console.log('✅ Mongo connected'))
+  .catch(err => console.error('❌ Mongo error', err));
 
-// ✅ Basic route for testing
+const todoSchema = new mongoose.Schema({
+  text: String,
+  status: String,
+  startDate: String,
+  endDate: String,
+});
+const Todo = mongoose.model('Todo', todoSchema);
+
+app.get('/todos', async (req, res) => {
+  const todos = await Todo.find();
+  res.json(todos);
+});
+
+app.post('/todos', async (req, res) => {
+  try {
+    const { text, status, startDate, endDate } = req.body;
+    const newTodo = new Todo({ text, status, startDate, endDate });
+    await newTodo.save();
+    res.status(201).json(newTodo);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to add todo' });
+  }
+});
+
+// etc...
+
 app.get('/', (req, res) => {
   res.send('API is working');
 });
 
-// ✅ Start server
 app.listen(PORT, () => {
-  console.log(`🚀 Backend server running on http://localhost:${PORT}`);
+  console.log(`🚀 Backend running on http://localhost:${PORT}`);
 });
