@@ -5,11 +5,7 @@ const mongoose = require('mongoose');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors({
-  origin: 'https://todo-frontend-three-gamma.vercel.app',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-}));
-
+app.use(cors());
 app.use(express.json());
 
 // MongoDB connection
@@ -27,14 +23,47 @@ const todoSchema = new mongoose.Schema({
 });
 const Todo = mongoose.model('Todo', todoSchema);
 
-// ✅ ROUTES
+// ✅ Routes
 app.get('/todos', async (req, res) => {
   const todos = await Todo.find();
   res.json(todos);
 });
 
-// ✅ SERVER
+app.post('/todos', async (req, res) => {
+  try {
+    const { text, status, startDate, endDate } = req.body;
+    const newTodo = new Todo({ text, status, startDate, endDate });
+    await newTodo.save();
+    res.status(201).json(newTodo);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to add todo' });
+  }
+});
+
+app.put('/todos/:id', async (req, res) => {
+  try {
+    const updatedTodo = await Todo.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.json(updatedTodo);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update todo' });
+  }
+});
+
+app.delete('/todos/:id', async (req, res) => {
+  try {
+    await Todo.findByIdAndDelete(req.params.id);
+    res.json({ message: 'Deleted successfully' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to delete todo' });
+  }
+});
+
+// Optional base route
+app.get('/', (req, res) => {
+  res.json({ message: "API is running" });
+});
+
+// ✅ Start server
 app.listen(PORT, () => {
   console.log(`🚀 Backend live on port ${PORT}`);
 });
-
