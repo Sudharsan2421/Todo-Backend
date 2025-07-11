@@ -3,42 +3,37 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 
 const app = express();
-const PORT = process.env.PORT; // Render uses this automatically
+const PORT = process.env.PORT;
 
-// ✅ Use environment variable for MongoDB URI
+// ✅ Mongo URI
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/todos';
 
 app.use(cors());
 app.use(express.json());
 
-// ✅ MongoDB connection
-mongoose.connect(MONGO_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-})
-.then(() => console.log('✅ Connected to MongoDB'))
-.catch((err) => {
-  console.error('❌ MongoDB connection failed:', err.message);
-  process.exit(1); // stop the app
-});
+// ✅ MongoDB connect (cleaned)
+mongoose.connect(MONGO_URI)
+  .then(() => console.log('✅ Connected to MongoDB'))
+  .catch((err) => {
+    console.error('❌ MongoDB connection failed:', err.message);
+    process.exit(1);
+  });
 
-// ✅ Define schema & model
+// ✅ Schema + Model
 const todoSchema = new mongoose.Schema({
   text: String,
   status: String,
   startDate: String,
-  endDate: String
+  endDate: String,
 });
 const Todo = mongoose.model('Todo', todoSchema);
 
 // ✅ Routes
 
-// Health check
 app.get('/', (req, res) => {
   res.send('🚀 API is working');
 });
 
-// GET all todos
 app.get('/todos', async (req, res) => {
   try {
     const todos = await Todo.find();
@@ -49,7 +44,6 @@ app.get('/todos', async (req, res) => {
   }
 });
 
-// POST new todo
 app.post('/todos', async (req, res) => {
   try {
     const { text, status, startDate, endDate } = req.body;
@@ -62,18 +56,15 @@ app.post('/todos', async (req, res) => {
   }
 });
 
-// PUT update todo
 app.put('/todos/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const { text, status, endDate } = req.body;
-
     const updated = await Todo.findByIdAndUpdate(
       id,
       { text, status, endDate },
       { new: true }
     );
-
     res.json(updated);
   } catch (err) {
     console.error('❌ PUT error:', err);
@@ -81,7 +72,6 @@ app.put('/todos/:id', async (req, res) => {
   }
 });
 
-// DELETE todo
 app.delete('/todos/:id', async (req, res) => {
   try {
     const { id } = req.params;
@@ -93,7 +83,6 @@ app.delete('/todos/:id', async (req, res) => {
   }
 });
 
-// ✅ Start server
 app.listen(PORT, () => {
   console.log(`🚀 Backend running on port ${PORT}`);
 });
